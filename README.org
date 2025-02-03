@@ -1,0 +1,77 @@
+#+TITLE: Multiplicative
+#+DESCRIPTION: Multiply the power of mpv.
+#+DATE: <2023-09-01 Fri 15:00>
+
+@@html:<b>@@M@@html:</b>@@ulti@@html:<b>@@p@@html:</b>@@licati@@html:<b>@@v@@html:</b>@@e is an [[https://mpv.io][mpv]] extension that adds a variety of useful features and improvements, with an emphasis on usability, consistency, and dynamism.
+
+- Usability: All commands are invoked via a system of hierarchical mnemonic keybindings.
+- Consistency: Commands have consistent, predictable names and aliases.
+- Dynamism: Keybindings and command, function, and variable documentation is introspectable at runtime.
+
+A major effort is made to keep the code clean, well-documented, and beautiful. For this reason, among others, Multiplicative is written in [[https://fennel-lang.org][Fennel]]--a Lisp-like language that compiles to Lua--rather than Lua directly.
+
+* Notation
+# FIX: maybe don't use Emacs style notation and just use the same notation that mpv does in input.conf instead?
+When writing keybindings, we sometimes use Emacs-style keybinding notation:
+
+- ~C-~ - Ctrl+key.
+- ~M-~ - Meta+key. On Linux and Windows, Meta is the ~Alt~ key, while on macOS, it's ~Command~.
+- ~s-~ - Super+key. On many keyboards, the Super key is printed with the Windows logo.
+
+Examples:
+- ~C-f~ - Hold ~Ctrl~, tap ~f~, then release ~Ctrl~.
+- ~M-.~ - Hold ~Alt~, tap ~.~, then release ~Alt~.
+- ~C-h k~ - Hold ~Ctrl~, tap ~h~, release ~Ctrl~, then tap ~k~.
+- ~C-1 M-x foobar RET~ - Hold ~Ctrl~, tap ~1~, release ~Ctrl~, hold ~Alt~, tap ~x~, release ~Alt~, type ~foobar~, then tap ~Enter~.
+
+* Features
+- Fennel REPL (~:~ or ~M-:~).
+- "Frame" stepping for audio files (~.~ and ~,~ when an audio file is playing).
+# FIX: finish implementing youtube url timestamp functionality
+- Copy path/URL to clipboard, including timestamp if the media is being played from YouTube (~c~).
+- Directory jumping (~N~ and ~P~ to jump to the next/previous playlist item in a different directory).
+- Auto-copy screenshot path to clipboard when taking a screenshot (~s~, or ~S~ to screenshot without subtitles).
+- Delete/trash current file (~D~, plus options ~delete-command~, ~trash-command~, and ~delete-by-trashing~).
+- Open the media's directory contents in a new mpv instance (~v~).
+- Open the media in your browser (~B~, plus option ~browser~).
+- Open the containing directory or URL of the media in your file manager or browser (~M-.~, plus option ~file-manager~).
+- Better xscreensaver prevention (only prevent screensaver if the media has audio (i.e. is not a gif) and is playing unmuted).
+- Option to exit mpv 5 seconds after the end of the playlist (option ~pre-exit-pause-time~).
+- Option to log the date/time, path/URL, and title of played media (options ~record-history~, ~history-log-filename~, and ~history-exclusion-pattern~).
+- Lots of utility functions to make development easier.
+- Convenience functions wrapping mpv's Lua API.
+
+* Future
+See [[file:doc/TODO.org][TODO.org]] for a list of ideas for features that could eventually be implemented.
+
+* Installation
+To compile, install [[https://fennel-lang.org][Fennel]], and then run:
+
+#+begin_src sh
+fennel --compile --metadata --require-as-include --globals '*' multiplicative.fnl >multiplicative.lua
+#+end_src
+
+Once compilation finishes, simply move ~multiplicative.lua~ into your mpv ~scripts/~ directory to complete the installation.
+
+In the future, releases of Multiplicative will be available as pre-compiled Lua so you won't need to do this yourself.
+
+* Development
+Contributions to Multiplicative are welcome, but if you're contributing code, please ensure:
+
+- The existing code style is followed.
+- Commit messages properly describe the change and its rationale.
+- New functions or commands have a docstring, which:
+  - Starts with a sentence that summarizes the command.
+  - Describes the arguments, with their names in UPPERCASE.
+  - Contains a "See also" line that references similar or related functions/commands/variables, if applicable.
+  - Links to other functions, commands, or variables by surrounding them with a backtick (~`~) and apostrophe (~'~); example: ~`foo'~
+  - Doesn't go into implementation details that the user of the function doesn't need to know about (put those in comments instead).
+- Multiplicative's wrappers for mpv functions are preferred unless they are ill-fitting due to speed, efficiency, or functionality concerns.
+
+If you want to work on this code, your editor of choice likely has [[https://wiki.fennel-lang.org/Editors][support for Fennel]].
+
+In general, though, Emacs is probably the best editor for Lisp-like languages, with the side benefit of also being the best editor full stop. If you're writing Fennel in Emacs, you should use [[https://git.sr.ht/~technomancy/fennel-mode][fennel-mode]], preferably combined with LSP support such as that provided by [[https://www.gnu.org/software/emacs/manual/html_mono/eglot.html][Eglot]], which is included with Emacs 28.1 and above. I also recommend adding the following configuration to your init.el:
+
+#+begin_src emacs-lisp
+  (put 'cmd 'fennel-indent-function 'defun)
+#+end_src

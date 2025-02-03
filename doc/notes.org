@@ -1,0 +1,75 @@
+#+TITLE: Notes
+#+DATE: <2025-02-02 Sun 18:55>
+#+DESCRIPTION: Various notes about Fennel, Lua, and the development of Multiplicative.
+
+* Fennel
+- ~fennel.view~ - get a string representation of an object (table).
+- ~fennel.doc~ - get the docstring for a function.
+- ~fennel.metadata~ - table of functionality relating to metadata:
+- ~(fennel.metadata:get func key)~ - get a function's metadata.
+- ~(fennel.metadata:set func key val)~ - set a function's metadata.
+- ~sym~ - turn a string into a symbol (only when compiling)
+- ~sym?~ - true if the argument is a symbol (only when compiling)
+- varargs/variadic functions example: ~(fn foo [...] (fennel.view [...]))~
+- string joining is ~(table.concat table separator)~
+
+** CL-inspired condition system for Fennel:
+- https://gitlab.com/andreyorst/fennel-conditions
+- https://www.reddit.com/r/lisp/comments/nodnig/cl_inspired_condition_scstem_for_the_fennel/
+
+** making functions/etc accessible to fennel.eval and/or the REPL
+#+begin_quote
+<defaultxr> hi. i'm trying to add a repl to a fennel program i'm writing by following the instructions at https://wiki.fennel-lang.org/Repl , and i'm trying to make everything that i have available in my program also available in the repl (i.e. all functions i define, all modules i require, etc). what's the easiest way to do that? i tried setting the :env and :compilerEnv to _G as well as a few other things
+<defaultxr> but didn't seem to have any luck, i just get "unknown identifier" for any functions i try to call in the repl
+<technomancy> defaultxr: that's the default behavior if you don't set :env
+<defaultxr> hmm... i tried that too (along with leaving :compilerEnv unset) and i don't think it worked for me
+<defaultxr> let me try again though
+<defaultxr> yeah, doesn't seem to work :(
+<defaultxr> https://paste.rs/LCZVO is how i'm creating the repl
+<defaultxr> the program/script i'm writing is an extension for mpv, maybe mpv is sandboxing it or something
+<technomancy> can you show the failure?
+<technomancy> what you're doing looks right
+<defaultxr> when i set :allowedGlobals false, i get "Runtime Error: [string \"return tpr(\"one\")\"]:1: attempt to call global 'tpr' (a nil value)". if i omit it, i get "Compile Error: unknown:1:1: Compile error: unknown identifier: tpr" (where tpr is a function defined in my script/program)
+<technomancy> so the repl is running with a different set of globals from the rest of your program?
+<technomancy> can the code that starts the repl see that global?
+<technomancy> is it possible that tpr is a local and not a global?
+<defaultxr> yes, it seems the repl has a different set of globals. i put a call to tpr just before (coroutine.resume repl-coroutine input-text) and it works fine, but i get those errors when i try to call tpr from the repl
+<technomancy> that seems really unusual behavior for a global; are you sure this is a global?
+<defaultxr> i'm defining tpr like (fn tpr ...) as a toplevel function in my script (i.e. i haven't specifically marked it as local)
+<technomancy> it's a local
+<technomancy> if you want it to be visible in the repl you'll need to make it a global or load it in using require from a module
+<defaultxr> ahh okay. so something like (global tpr (fn ...)) instead then, makes sense. and i can probably write a macro that will wrap fn so i don't have to do that manually every time
+<defaultxr> thanks!
+<technomancy> np. you can also do (fn _G.tpr [...])
+<defaultxr> cool, thanks. i was expecting :env _G to work for that, i guess i should study lua's modules/scoping more
+<technomancy> :env _G just says "the globals should be the default globals" which doesn't actually do anything
+<technomancy> defining the function in the _G table will ensure it's visible as a global rather than being a local function
+<technomancy> lol wat https://github.com/nesbox/TIC-80/pull/2688
+<defaultxr> gotcha, that makes sense now. i think i was assuming that _G worked like *package* does in common lisp (which is a silly assumption to make)
+<technomancy> globals in lua/fennel are really just syntactic sugar for looking things up in a table named _G
+<ot> it's tables all the way down
+<defaultxr> do i have to do anything in particular to make functions with dashes in their name available in the repl? "tpr" works but if i do "tpr-2" for example it says "Runtime Error: [string \"return __fnl_global__tpr_2d2(\"one\")\"]:1: attempt to call global '__fnl_global__tpr_2d2' (a nil value)"
+<technomancy> defaultxr: well, yeah, that's one of many reasons locals are better than globals
+<technomancy> but you should be able to use (_G.tpr-2 "one")
+<defaultxr> sorry, i guess what i really want is to be able to access the locals from the repl rather than making them globals. is that possible?
+<technomancy> the best way to do it is to export the locals from a module and use that from the repl
+<defaultxr> thanks, i'll try that
+<technomancy> also if you have allowedGlobals set to false I'd get rid of that setting
+<defaultxr> i had that commented since it didn't seem to help, i'll leave it out
+#+end_quote
+
+* Lua
+** Patterns
+Patterns are basically Lua's equivalent to regular expressions/regex, for matching strings.
+- https://www.lua.org/manual/5.3/manual.html#6.4.1
+- cheat sheet: https://gist.github.com/spr2-dev/46ca9f4a6f933fa266bccd87fd15d09a
+
+* mpv
+- ~ANY_UNICODE~ can be used as a "key" to capture all keystrokes
+
+** mp.input
+- https://github.com/mpv-player/mpv/issues/6200
+- https://github.com/mpv-player/mpv/pull/10282
+
+** Check out
+- "file browser": https://github.com/CogentRedTester/mpv-file-browser

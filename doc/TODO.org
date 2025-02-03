@@ -1,0 +1,116 @@
+#+TITLE: Multiplicative TODO
+#+DATE: <2024-09-05 Thu 02:51>
+#+DESCRIPTION: TODO and ideas for the future of the Multiplicative mpv extension.
+
+- A second consecutive call to ~copy-filename~ (and/or calling it with a "prefix argument"?) should copy the media's ~User-defined URL~ tag (or maybe ~Comment~, since ~yt-dlp~ copies the original URL to it).
+- (Customizable) OSD.
+- Emacs-style command menu; press ~M-x~ to get a list of commands, search for the one you want, then press enter when it's selected to execute it.
+  - Auto-scan installed scripts for their commands? Perhaps keep a cache and only update on exit unless the cache doesn't exist?
+  - Also auto-scan the mpv ~input.conf~.
+- Help commands (under the ~C-h~ or ~f1~ prefix):
+  - ~C-h k~ to look up a specific key.
+  - ~C-h c~ to look up a command (from a user perspective). Also bound to ~C-h x~.
+  - ~C-h f~ to look up a function or command (from a code perspective).
+  - ~C-h v~ to look up a variable.
+  - ~C-h t~ for a tutorial.
+  - ~C-h C-a~ to show the "about" information.
+  - ~C-h C-f~ to view the FAQ.
+  - ~C-h C-t~ to view the TODO.
+  - ~C-h K~ to show toplevel bindings.
+  - ~C-h b~ to show current mode bindings (i.e. a "cheat sheet").
+  - ~C-h m~ to describe the current mode.
+  - ~C-h M-.~ to open ~multiplicative.fnl~ in your editor.
+  - ~C-h C-.~ to select and open another mpv script in your editor.
+  - ~C-h l~ to show lossage (Emacs defaults to the last 300 keystrokes).
+  - ~C-h q~ or ~C-h C-g~ to cancel help invocation.
+- Command to copy the text of the currently-shown subtitles.
+- ~M-.~ to show the media's containing directory in a file manager, or its URL in a browser (if non-local).
+- ~!~ or ~M-!~ to run a shell command (with variables like ~$url~ and ~$dir~ replaced with the media's path, directory, etc).
+- Syntax highlighting for the REPL and ~M-x~.
+- Bookmarks.
+- Automatic ~save-position-on-quit~-like functionality and recovery (i.e. in case mpv quits or crashes).
+- Better ~ab-loop~ controls.
+- Navigation menu/prefix (maybe ~g~ and/or ~M-g~?).
+  - Seek relative
+  - Seek absolute (to specific timestamp)
+  - Jump to chapter (show chapter list and allow selecting by number, filtering by name, jumping relative, etc)
+  - Option to clamp seeking to cache
+  - Playlist seeking (jump to next/previous item, or jump by directory)
+  - Playlist index (~0~ for the first item, ~-~ for the last, or type the index and press ~RET~)
+  - Edit playlist (add, remove, reorder playlist items, etc)
+  - Subtitle search (search for and seek to a time in the video by subtitle text)
+- Zoom/pan/scale menu/prefix.
+  - Media original size
+  - Shrink to fit
+  - Scale to fill
+  - Scale to width
+  - Scale to height
+  - Toggle panning to the top of the media when changing the media being played
+- Audio effect menu/prefix.
+  - Pitch shift
+  - Vibrato
+- Video effect menu/prefix.
+  - Rotation, zoom, panning (maybe?)
+  - Invert
+- Copy menu/prefix.
+  - Filename/URL (URL timestamped when possible)
+  - Current subtitle (i.e. with the [[https://mpv.io/manual/master/#command-interface-sub-text][sub-text property]])
+  - Current timestamp
+  - Start/stop writing messages/warnings/etc to a file
+- Info menu/prefix.
+  - mpv's ~info~
+  - Metadata (like [[https://github.com/vc-01/metadata-osd][vc-01's metadata-osd script]])
+    - Show video description (i.e. from YouTube).
+  - File information (path, size, date, ownership, permissions, etc)
+  - Stream information (cache length, cache size, download rate, etc)
+  - mpv information (version, PID, compilation time, etc)
+- Meta menu/prefix.
+  - Open mpv's config directory.
+  - Open mpv's global config directory (typically ~/etc/mpv~).
+  - Open [[https://mpv.io/manual/master/#command-interface-working-directory][mpv's working directory]]
+  - Open a script in your editor.
+  - Open a script's options file in your editor.
+  - Open a script's homepage.
+  - Debug info (show window ID/title/info, key inputs, mouse position, etc)
+- Media control menu/prefix.
+  - Audio track selection
+  - Subtitle track selection
+- File menu/prefix.
+  - Delete file
+  - Rename file
+  - Copy file
+  - Copy filename
+  - Change file ownership/permissions
+- Extract menu/prefix.
+  - Extract audio
+  - Extract video
+  - Extract subtitles
+  - Allow specifying range within the media
+  - Allow specifying output format
+  - Allow cropping the video
+  - [[https://github.com/ekisu/mpv-webm][mpv-webm]] integration(?)
+- Output control menu/prefix.
+  - Show output type
+  - Audio device selection
+  - Video device selection
+- "Open file" command with history, and completion for local paths/history.
+- [[https://github.com/justbur/emacs-which-key][which-key]]-like prefix keybinding summaries.
+- Audio file display (one or more of the following):
+  - Cover art, like [[https://github.com/CogentRedTester/mpv-coverart][CogentRedTester's mpv-coverart script]]. Should be auto-detected from the file's tags or from an image within the containing directory.
+  - Visualizer, like [[https://github.com/mfcc64/mpv-scripts/blob/master/visualizer.lua][mfcc64's visualizer script]].
+  - Title, URL, chapter info, etc.
+- Undo/redo functionality, like [[https://github.com/Eisa01/mpv-scripts#undoredo][Eisa01's UndoRedo script]], but should work on more stuff.
+- More improvements for using mpv as an image viewer:
+  - Option to start the image at the top of the window if the image is bigger than the window (i.e. at original zoom).
+- Option to allow remote evaluation via a socket. Perhaps using [[https://gitlab.com/technomancy/jeejah][jeejah]] or similar?
+- "Noninteractive mode" to evaluate an mpv command, Multiplicative command, or Fennel code (etc), and then exit.
+- ~multiplicative~ Bash and/or Fish script
+  - Convenience for starting Multiplicative.
+  - Convenience for running code or commands noninteractively.
+  - Convenience for evaluating code or commands in a running mpv when socket remote evaluation is enabled.
+- Modularize the script and allow features to be excluded from compilation.
+- Look into:
+  - [[https://gitlab.com/technomancy/jeejah][jeejah]] - an nREPL server for Lua.
+  - [[https://gitlab.com/andreyorst/fennel-test][fennel-test]] - Fennel testing library.
+  - [[https://github.com/bb010g/anise][anise]] - a utility library for Fennel.
+- Function to check the current directory for new files that aren't already part of the playlist, and add them to it in the correct order
