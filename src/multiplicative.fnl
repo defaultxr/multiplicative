@@ -239,11 +239,22 @@ See also: `system-processes'"
       (= "http:/" (string.sub path 1 6))
       (= "https:/" (string.sub path 1 7))))
 
-(fn path-absolute [path] ; FIX: maybe rename to `path-expand'? also maybe expand ~ and similar?
+(fn path-expand-tilde [path]
+  "Expand a tilde at the start of PATH into the home directory of the current or specified user."
+  (if (and (= 1 (length path)) (= "~" path)) (os.getenv "HOME")
+      (= "~/" (string.sub path 1 2)) (.. (os.getenv "HOME") (string.sub path 2))
+      ;; FIX: handle other users' home directories? i.e. ~bob = /home/bob
+      path))
+
+(fn path-expand-remove-selves [path]
+  "Remove unneeded \"/./\" from PATH."
+  (string.gsub path "/./" "/"))
+
+(fn path-absolute [path]
   "Get the full path to PATH. If PATH is not a full path, we assume it's relative to the current working directory."
-  (if (path-absolute? path)
-      path
-      (string.gsub (.. (mp.get_property "working-directory") "/" path) "/./" "/")))
+  (path-expand-remove-selves (if (path-absolute? path)
+                                 path
+                                 (path-expand-tilde (.. (mp.get_property "working-directory") "/" path)))))
 
 (fn path-directory [path] ; mpv wrapper
   "Get a table containing the directory and filename components of PATH."
