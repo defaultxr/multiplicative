@@ -913,7 +913,7 @@ See also: `open-in-browser'"
 (fn history-record [] ; FIX
   "Record the current media as an item in the history log."
   (when (history-record-this?)
-    (let [log-filename (. opts :history-log-filename)]
+    (let [log-filename (path-absolute (. opts :history-log-filename))]
       (when (not (utils.file_info log-filename))
         (subprocess {:args ["mkdir" (path-directory log-filename)] :detach false}))
       (let [filename (mp.get_property "filename")
