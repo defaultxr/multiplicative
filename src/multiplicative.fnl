@@ -248,7 +248,8 @@ See also: `system-processes'"
 
 (fn path-expand-remove-selves [path]
   "Remove unneeded \"/./\" from PATH."
-  (string.gsub path "/./" "/"))
+  (let [(result replacements) (string.gsub path "/./" "/")]
+    result))
 
 (fn path-absolute [path]
   "Get the full path to PATH. If PATH is not a full path, we assume it's relative to the current working directory."
