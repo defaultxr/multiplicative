@@ -315,11 +315,13 @@ See also: `system-processes'"
 (fn media-type [filename]
   "Get a generalized file type (i.e. audio, video, image, etc) of FILENAME, or the current media if no filename is specified."
   (if filename
-      (case (string.lower (path-extension filename))
-        ;; FIX: use image-exts, audio-exts, video-exts for this instead of hardcoding them:
-        (where (or "bmp" "gif" "jpeg" "jpg" "png" "webp")) "image"
-        (where (or "aac" "aif" "aiff" "flac" "m4a" "mp3" "ogg" "opus" "wav" "wma")) "audio"
-        (where (or "avi" "flv" "m2t" "m4v" "mkv" "mov" "mp4" "ogv" "webm" "wmv")) "video")
+      (let [image-exts (. opts :image-extensions)
+            audio-exts (. opts :audio-extensions)
+            video-exts (. opts :video-extensions)]
+        (case (string.lower (path-extension filename))
+          (where (or image-exts)) "image"
+          (where (or audio-exts)) "audio"
+          (where (or video-exts)) "video"))
       (if (mp.get_property_native (table.concat ["track-list/" (playlist-current-index) "/image"])) "image"
           (and (has-audio?) (not (has-video?))) "audio"
           (and (has-audio?) (has-video?)) "video")))
@@ -383,7 +385,13 @@ See also: `system-processes'"
            ;; Whether to inhibit the screensaver while media with audio is playing.
            :screensaver-inhibit false ; default to false since mpv provides its own which users might already have enabled.
            ;; The number of seconds to pause before auto-exiting at end of playlist, or false to disable this behavior.
-           :pre-exit-pause-time 5})
+           :pre-exit-pause-time 5
+           ;; File extensions used for image files.
+           :image-extensions ["bmp" "gif" "jpeg" "jpg" "png" "webp"]
+           ;; File extensions used for audio files.
+           :audio-extensions ["aac" "aif" "aiff" "flac" "m4a" "mp3" "ogg" "opus" "wav" "wma"]
+           ;; File extensions used for video files.
+           :video-extensions ["avi" "flv" "m2t" "m4v" "mkv" "mov" "mp4" "ogv" "webm" "wmv"]})
 
 (options.read_options opts (mp.get_script_name) true)
 
