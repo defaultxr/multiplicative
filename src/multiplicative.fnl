@@ -361,7 +361,7 @@ See also: `system-processes'"
            ;; Whether to record history to the history file.
            :record-history true
            ;; The filename to write history to.
-           :history-log-filename (.. (os.getenv "XDG_DATA_HOME") "/mpv/log/mpv-history.log") ; FIX: what if XDG_DATA_HOME is not set? what if this dir doesn't exist?
+           :history-log-filename (.. (os.getenv "XDG_DATA_HOME") "/mpv/log/mpv-history.log") ; FIX: what if XDG_DATA_HOME is not set?
            ;; Lua pattern of URL/paths to exclude from history.
            :history-exclusion-pattern "^$"
            ;; The command used for the `show-in-file-manager' command.
@@ -909,17 +909,19 @@ See also: `open-in-browser'"
 (fn history-record-this? []
   "True when the current media should be recorded to the history file."
   (let [exclusion-pattern (. opts :history-exclusion-pattern)
-        path (path-absolute (mp.get_property "path"))]
-    (and (. opts :record-history)
-         (not (string.match path exclusion-pattern)))))
+        path (mp.get_property "path")]
+    (and path
+         (. opts :record-history)
+         (not (string.match (path-absolute path) exclusion-pattern)))))
 
 ;; Based off of https://gist.github.com/garoto/e0eb539b210ee077c980e01fb2daef4a
 (fn history-record [] ; FIX
   "Record the current media as an item in the history log."
   (when (history-record-this?)
-    (let [log-filename (path-absolute (. opts :history-log-filename))]
-      (when (not (utils.file_info log-filename))
-        (subprocess {:args ["mkdir" (path-directory log-filename)] :detach false}))
+    (let [log-filename (path-absolute (. opts :history-log-filename))
+          log-filename-dir (path-directory log-filename)]
+      (when (not (file-exists? log-filename-dir))
+        (subprocess {:args ["mkdir" log-filename-dir] :detach false}))
       (let [filename (mp.get_property "filename")
             media-title (mp.get_property "media-title")
             write-title (if (= title filename) "" (string.format " (%s)" media-title))
