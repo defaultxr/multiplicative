@@ -223,7 +223,7 @@ See also: `system-processes'"
 
 (fn path-local? [string]
   "True if STRING looks like a local file path."
-  (or (and (unix-like?) ; FIX: can these be checked at compile time instead?
+  (or (and (unix-like?)
            (unix-path? string))
       (and (windows?)
            (windows-path? string))))
@@ -233,7 +233,7 @@ See also: `system-processes'"
   (or (= "http:/" (string.sub string 1 6))
       (= "https:/" (string.sub string 1 7))))
 
-(fn path-absolute? [path] ; FIX: rename to `path-full?', or `url-full?' instead maybe?
+(fn path-absolute? [path]
   "True if PATH is a full path (i.e. starts with /, http:/, or https:/)."
   (or (= "/" (string.sub path 1 1))
       (= "http:/" (string.sub path 1 6))
@@ -253,13 +253,15 @@ See also: `system-processes'"
 
 (fn path-absolute [path]
   "Get the full path to PATH. If PATH is not a full path, we assume it's relative to the current working directory."
-  (path-expand-remove-selves (if (path-absolute? path)
-                                 path
-                                 (path-expand-tilde (.. (mp.get_property "working-directory") "/" path)))))
+  (let [path (path-expand-tilde path)]
+    (path-expand-remove-selves (if (path-absolute? path)
+                                   path
+                                   (.. (mp.get_property "working-directory") "/" path)))))
 
 (fn path-directory [path] ; mpv wrapper
   "Get a table containing the directory and filename components of PATH."
-  (utils.split_path path))
+  (let [(directory filename) (utils.split_path path)]
+    directory))
 
 (fn path-filename [path] ; mpv wrapper
   "Get the filename component of PATH (i.e. remove the directory component)."
@@ -307,7 +309,8 @@ See also: `system-processes'"
 
 (fn file-exists? [filename]
   "Get a table of information about the file denoted by FILENAME, or nil if FILENAME does not exist."
-  (utils.file_info filename))
+  (let [(tab err) (utils.file_info filename)]
+    tab))
 
 (fn media-type [filename]
   "Get a generalized file type (i.e. audio, video, image, etc) of FILENAME, or the current media if no filename is specified."
