@@ -209,7 +209,7 @@ See also: `system-processes'"
 
 (fn dbus-service-available? [service]
   "Get information about a dbus service, or nil if it is not available."
-  (subprocess {:args ["busctl" "--user" "status" service] :capture_stdout true :capture_stderr true}))
+  (subprocess {:args ["busctl" "--user" "status" service] :capture_stdout true :capture_stderr true :playback_only false}))
 
 ;;; Paths and URLs
 
