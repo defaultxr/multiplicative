@@ -736,7 +736,8 @@ Thus an anchor of 1 represents the bottom left point of the text, 5 represents t
         seek-time (time-position)
         total-time (time-total)
         zoom (or (mp.get_property_native "video-zoom") "")
-        playlist-index (or (playlist-current-index) "")
+        playlist-index (playlist-current-index)
+        playlist-index (if playlist-index (+ 1 playlist-index) "")
         playlist-length (or (playlist-length) "")]
     ;; title
     (draw-text ass (.. title) 7 margin margin title-text-size)
