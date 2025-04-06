@@ -717,7 +717,6 @@ Thus an anchor of 1 represents the bottom left point of the text, 5 represents t
 ;; maybe we should specify the OSD margins by writing to the "user-data/osc/margins" property; https://mpv.io/manual/master/#command-interface-user-data/osc/margins
 (fn status-bar-refresh []
   "Draw/refresh the status bar."
-  ;; (msg-verbose "Refreshing status bar...")
   (let [ass (assdraw:ass_new)
         (w h) (mp.get_osd_size)
         margin (. opts :status-bar-margin)
@@ -749,15 +748,14 @@ Thus an anchor of 1 represents the bottom left point of the text, 5 represents t
 
 (cmd status-bar-enable []
   "Turn on display of the status bar."
-  ;; (message "Status bar enabled")
   (set status-bar-enabled true)
-  (mp.register_idle status-bar-refresh))
+  (status-bar-refresh)
+  (set status-bar-timer (mp.add_periodic_timer 0.25 status-bar-refresh)))
 
 (cmd status-bar-disable []
   "Turn off display of the status bar."
-  ;; (message "Status bar disabled")
   (set status-bar-enabled false)
-  (mp.unregister_idle status-bar-refresh)
+  (status-bar-timer:kill)
   (draw-ass ""))
 
 (cmd status-bar-toggle [] ; FIX: make a hook for when the status bar is enabled/disabled, so that i can call minimap-toggle when the status bar is enabled and call it again when it's disabled
