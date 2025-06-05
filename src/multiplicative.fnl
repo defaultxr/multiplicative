@@ -382,6 +382,8 @@ See also: `system-processes'"
            :status-bar-margin 2
            ;; Size of the status bar text.
            :status-bar-text-size 22
+           ;; Size of the status bar text outline.
+           :status-bar-outline-size 3.0
            ;; Whether to inhibit the screensaver while media with audio is playing.
            :screensaver-inhibit false ; default to false since mpv provides its own which users might already have enabled.
            ;; The number of seconds to pause before auto-exiting at end of playlist, or false to disable this behavior.
@@ -692,7 +694,7 @@ See also: `frame-step-audio'"
   (let [(ww wh) (mp.get_osd_size)]
     (mp.set_osd_ass ww wh ass)))
 
-(fn draw-text [ass text anchor x y text-size]
+(fn draw-text [ass text anchor x y text-size outline-size]
   "Draw TEXT to ASS at position X,Y with anchor point ANCHOR.
 
 ANCHOR is a number from 1-9 inclusive, where the anchor points relative to the text are as per the following diagram:
@@ -703,14 +705,15 @@ ANCHOR is a number from 1-9 inclusive, where the anchor points relative to the t
 
 Thus an anchor of 1 represents the bottom left point of the text, 5 represents the center, 9 represents the top right, etc."
   (let [expanded (mp.command_native ["expand-text" text])
-        text-size (or text-size (. opts :status-bar-text-size))]
+        text-size (or text-size (. opts :status-bar-text-size))
+        outline-size (or outline-size (. opts :status-bar-outline-size))]
     (if (not expanded)
         (msg-warn "Error expanding status bar text.")
         (do ; (msg-verbose (.. "Status bar updated to: " expanded))
           (ass:new_event)
           (ass:an anchor)
           (ass:pos x y)
-          (ass:append (.. "{\\fs" text-size "}{\\bord1.0}"))
+          (ass:append (.. "{\\fs" text-size "}{\\bord" outline-size "}"))
           (ass:append expanded)))))
 
 ;; FIX: should the status-bar be registered as an "OSD" in mpv?
